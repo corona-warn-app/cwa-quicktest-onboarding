@@ -11,7 +11,7 @@
   },
   "servers": [
     {
-      "url": "https://quicktest-result-proxy.coronawarn.app",
+      "url": "https://quicktest-result.coronawarn.app",
       "variables": {},
       "description": "quicktest-proxy PRODUCTION stage"
     },
