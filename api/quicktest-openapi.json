@@ -1,0 +1,100 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Coronawarn.app Quick-test Proxy",
+    "description": "The API defines how 3rd parties can insert results of quick-tests into the Coronawarn.app infrastructure. Be aware, that the communication with the quick-test proxy is secured by a mTLS connection",
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0"
+    },
+    "version": "1.0.0-SNAPSHOT"
+  },
+  "servers": [
+    {
+      "url": "https://quicktest-result.coronawarn.app",
+      "variables": {},
+      "description": "quicktest-proxy PRODUCTION stage"
+    },
+    {
+      "url": "https://quicktest-result-dfe4f5c711db.coronawarn.app/",
+      "variables": {},
+      "description": "quicktest-proxy INT stage, testing for external partners"
+    },
+    {
+      "url": "https://quicktest-result-cff4f7147260.coronawarn.app",
+      "variables": {},
+      "description": "quicktest-proxy WRU (Wirk-Referenz-Umgebung) stage, Coronawarn.app goes here"
+    }
+  ],
+  "paths": {
+    "/api/v1/quicktest/results": {
+      "post": {
+        "tags": [
+          "test-result-controller"
+        ],
+        "summary": "Endpoint for creating/updating quicktest results",
+        "description": "",
+        "operationId": "",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestResultList"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Content created"
+          },
+          "400": {
+            "description": "Client Certificate not accepted"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "TestResult": {
+        "required": [
+          "id",
+          "result"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "^([A-Fa-f0-9]{2}){32}$",
+            "description": "SHA-256 Hash of the identification attribute",
+            "type": "string"
+          },
+          "result": {
+            "maximum": 8,
+            "minimum": 5,
+            "type": "integer",
+            "format": "int32",
+            "description": "testresult for the given test: 5=pending, 6=negative, 7=positive, 8=test invalid"
+          }
+        },
+        "description": "The model of a quick-test result."
+      },
+      "TestResultList": {
+        "required": [
+          "testResults"
+        ],
+        "type": "object",
+        "properties": {
+          "testResults": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TestResult"
+            }
+          }
+        },
+        "description": "Array of quick-test results."
+      }
+    }
+  }
+}
