@@ -10,8 +10,8 @@ if test ${#1} -lt 3; then
     exit 1
 fi
 
-NAME_PROD=${1}_prod
-NAME_WRU=${1}_wru
+NAME_PROD=${1}-prod
+NAME_WRU=${1}-wru
 
 echo "Generating key for $NAME_PROD"
 openssl genrsa -des3 -out $NAME_PROD.key 4096
