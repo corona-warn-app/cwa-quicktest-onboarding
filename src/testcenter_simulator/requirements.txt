@@ -1,0 +1,4 @@
+cbor2 
+cose
+requests
+cryptography

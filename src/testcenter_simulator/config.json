@@ -1,0 +1,34 @@
+{
+    "dcc-endpoint" : "https://dcc-proxy-cff4f7147260.coronawarn.app",
+    "polling-period" : 10,
+    "dcc-client-cert" : "dccproxy_wru.pem",
+    "lab-ID" : "cov19codes",
+
+
+
+    "__template_doc__" : "Das Template ist Basis für das zufallsgenerierte DCC", 
+    "dcc-template" : {
+        "ver": "1.3.0",
+        "nam": {
+            "fn": "Meier-Müller (wird zufällig geändert)",
+            "fnt": "MEIER<MUELLER (wird geändert)",
+            "gn": "Max (wird zufällig geändert)",
+            "gnt": "MAX (wird geändert)"
+        },
+        "dob": "1999-09-09 (wird geändert)",
+        "t": [
+            {
+                "tg": "840539006",
+                "tt": "LP6464-4",
+                "ma": "1232",
+                "sc": "2021-06-01T12:34:56Z (wird geändert)",
+                "tr": "260415000",
+                "nm": "ACME Schnelltest",
+                "tc": "Beispiel Test Center",
+                "co": "DE",
+                "is": "Test Issuer",
+                "ci": "(wird aus DCC-Request übernommen)"
+            }
+        ]
+    }
+}
