@@ -1,5 +1,5 @@
 {
-    "dcc-endpoint" : "https://dcc-proxy-cff4f7147260.coronawarn.app",
+    "dcc-endpoint" : "[DCC Server URL]",
     "polling-period" : 10,
     "dcc-client-cert" : "dccproxy_wru.pem",
     "lab-ID" : "cov19codes",
