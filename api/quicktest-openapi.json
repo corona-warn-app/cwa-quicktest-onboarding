@@ -7,7 +7,7 @@
       "name": "Apache 2.0",
       "url": "http://www.apache.org/licenses/LICENSE-2.0"
     },
-    "version": "1.0.0-SNAPSHOT"
+    "version": "1.2.1-SNAPSHOT"
   },
   "servers": [
     {
@@ -27,19 +27,50 @@
     }
   ],
   "paths": {
+    "/api/v1/quicktest/result": {
+      "post": {
+        "tags": [
+          "test-result-controller"
+        ],
+        "summary": "Set the testresult for a Rapid Antigen Test.",
+        "description": "The result and the sc (sample collection) timestamp of a RAT can be set.",
+        "operationId": "quickTestResult",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestResultRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ok, RAT result inserted successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestResultResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/quicktest/results": {
       "post": {
         "tags": [
           "test-result-controller"
         ],
-        "summary": "Endpoint for creating/updating quicktest results",
-        "description": "",
-        "operationId": "",
+        "summary": "Set multiple testresults for a Rapid Antigen Test as an array.",
+        "description": "The result and the sc (sample collection) timestamp of a RAT can be set.",
+        "operationId": "quicktestResults",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/TestResultList"
+                "$ref": "#/components/schemas/QuickTestResultList"
               }
             }
           },
@@ -47,10 +78,14 @@
         },
         "responses": {
           "204": {
-            "description": "Content created"
-          },
-          "400": {
-            "description": "Client Certificate not accepted"
+            "description": "No content, RAT result(s) inserted successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         }
       }
@@ -58,7 +93,46 @@
   },
   "components": {
     "schemas": {
-      "TestResult": {
+      "TestResultRequest": {
+        "required": [
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "^[XxA-Fa-f0-9]([A-Fa-f0-9]{63})$",
+			"description": "SHA-256 Hash of the identification attribute",
+            "type": "string"
+          },
+          "sc": {
+			"description": "time of sample collection (sc) in unix epoch format.",
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "description": "The test result request model."
+      },
+      "TestResultResponse": {
+        "required": [
+          "testResult"
+        ],
+        "type": "object",
+        "properties": {
+          "testResult": {
+            "maximum": 8,
+            "minimum": 5,
+            "type": "integer",
+            "format": "int32",
+			"description": "testresult for the given test: 5=pending, 6=negative, 7=positive, 8=test invalid"
+          },
+          "sc": {
+            "type": "integer",
+            "format": "int64"
+          },
+        },
+        "description": "The test result response model."
+      },
+      "QuickTestResult": {
         "required": [
           "id",
           "result"
@@ -66,21 +140,26 @@
         "type": "object",
         "properties": {
           "id": {
-            "pattern": "^([A-Fa-f0-9]{2}){32}$",
-            "description": "SHA-256 Hash of the identification attribute",
-            "type": "string"
+            "pattern": "^[XxA-Fa-f0-9]([A-Fa-f0-9]{63})$",
+            "type": "string",
+            "description": "the testId (Hashed GUID"
           },
           "result": {
-            "maximum": 8,
+            "maximum": 9,
             "minimum": 5,
             "type": "integer",
-            "format": "int32",
-            "description": "testresult for the given test: 5=pending, 6=negative, 7=positive, 8=test invalid"
+            "description": "the result of the rapid antigen test",
+            "format": "int32"
+          },
+          "sc": {
+            "type": "integer",
+            "description": "the timestamp of the sample collection (sc) in unix epoch format. If not set, the time of insertion will be used instead",
+            "format": "int64"
           }
         },
-        "description": "The model of a quick-test result."
+        "description": "The rapid antigen test result model."
       },
-      "TestResultList": {
+      "QuickTestResultList": {
         "required": [
           "testResults"
         ],
@@ -88,12 +167,13 @@
         "properties": {
           "testResults": {
             "type": "array",
+            "description": "array of rapid antingen test results",
             "items": {
-              "$ref": "#/components/schemas/TestResult"
+              "$ref": "#/components/schemas/QuickTestResult"
             }
-          }
+          },
         },
-        "description": "Array of quick-test results."
+        "description": "The rapid antigen test result list model."
       }
     }
   }
