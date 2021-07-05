@@ -90,8 +90,8 @@ class LabSimulator:
             expiredAfterSeconds = 60 * 60 * 24  # Wenn nichts angegeben, 1 Tag Gültigkeit
 
         cborMap = {}
-        cborMap[6] = issuedAtTimestamp + expiredAfterSeconds
-        cborMap[4] = issuedAtTimestamp
+        cborMap[4] = issuedAtTimestamp + expiredAfterSeconds
+        cborMap[6] = issuedAtTimestamp
         cborMap[1] = 'DE'
         cborMap[-260] = {1: certData}
         return cbor2.dumps(cborMap)
