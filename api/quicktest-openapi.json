@@ -32,8 +32,8 @@
         "tags": [
           "test-result-controller"
         ],
-        "summary": "Set the testresult for a Rapid Antigen Test.",
-        "description": "The result and the sc (sample collection) timestamp of a RAT can be set.",
+        "summary": "Request the test result for a Rapid Antigen Test by its ID.",
+        "description": "For a given Test ID the result of a RAT can be requested.",
         "operationId": "quickTestResult",
         "requestBody": {
           "content": {
@@ -103,11 +103,6 @@
             "pattern": "^[XxA-Fa-f0-9]([A-Fa-f0-9]{63})$",
 			"description": "SHA-256 Hash of the identification attribute",
             "type": "string"
-          },
-          "sc": {
-			"description": "time of sample collection (sc) in unix epoch format.",
-            "type": "integer",
-            "format": "int64"
           }
         },
         "description": "The test result request model."
@@ -124,10 +119,6 @@
             "type": "integer",
             "format": "int32",
 			"description": "testresult for the given test: 5=pending, 6=negative, 7=positive, 8=test invalid"
-          },
-          "sc": {
-            "type": "integer",
-            "format": "int64"
           },
         },
         "description": "The test result response model."
