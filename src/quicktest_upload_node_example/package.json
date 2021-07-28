@@ -1,0 +1,29 @@
+{
+  "name": "quicktest_upload_node_example",
+  "version": "1.0.0",
+  "description": "An example implementation of sending test results in node.js",
+  "main": "index.js",
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint"
+    }
+  },
+  "license": "MIT",
+  "scripts": {
+    "test": "node index.js",
+    "lint": "eslint './**/*.js'"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "eslint": "^7.26.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.23.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "husky": "^4.2.5"
+  }
+}
