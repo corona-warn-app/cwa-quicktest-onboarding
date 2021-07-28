@@ -1,4 +1,4 @@
-cbor2 
+cbor2
 cose
 requests
 cryptography
