@@ -1,0 +1,517 @@
+{
+	"openapi": "3.0.1",
+	"info": {
+		"title": "DE Digital COVID Certificate Business Rule Service",
+		"description": "The API defines how to exchange business rule information for the EU digital COVID certificates.",
+		"license": {
+			"name": "Apache 2.0",
+			"url": "https://www.apache.org/licenses/LICENSE-2.0"
+		},
+		"version": "1.0.1"
+	},
+	"servers": [
+		{
+			"url": "https://distribution.dcc-rules.de",
+			"description": "DE DCC Rules Submission Service"
+		}
+	],
+	"paths": {
+		"/valuesets": {
+			"get": {
+				"tags": [
+					"Value Sets"
+				],
+				"summary": "Gets the a list of all value set ids and value set hash values.",
+				"description": "This method returns a list containing the ids and hash values of all value sets. The hash value can be used to check, if a value set has changed and needs to be updated. The hash value can also be used to download a specific value set afterwards.",
+				"operationId": "getValueSetList",
+				"parameters": [
+					{
+						"name": "X-VERSION",
+						"in": "header",
+						"description": "Version of the API. In preparation of changes in the future. Set it to \"1.0\"",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Returns a list of all value set ids and there hash values.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/ValueSetListItem"
+									}
+								},
+								"example": [
+									{
+										"id": "country-2-codes",
+										"hash": "923e4e556fe7936e4a3e92e76cfb3aa87be1bf30000b4df3b755247042eea0e7"
+									},
+									{
+										"id": "covid-19-lab-result",
+										"hash": "934e145e9bb1f560d1d3b1ec767ce3a4e9f86ae101260ed04a5cef8c1f5636c4"
+									},
+									{
+										"id": "covid-19-lab-test-manufacturer-and-name",
+										"hash": "9da3ed15d036c20339647f8db1cb67bfcfbd04575e10b0c0df8e55a76a173a97"
+									},
+									{
+										"id": "covid-19-lab-test-type",
+										"hash": "50ba87d7c774cd9d77e4d82f6ab34871119bc4ad51b5b6fa1100efa687be0094"
+									},
+									{
+										"id": "disease-agent-targeted",
+										"hash": "d4bfba1fd9f2eb29dfb2938220468ccb0b481d348f192e6015d36da4b911a83a"
+									},
+									{
+										"id": "sct-vaccines-covid-19",
+										"hash": "70505eab33ac1da351f782ee2e78e89451226c47360e7b89b8a6295bbb70eed6"
+									},
+									{
+										"id": "vaccines-covid-19-auth-holders",
+										"hash": "55af9c705a95ced1a7d9130043f71a7a01f72e168dbd451d23d1575962518ab6"
+									},
+									{
+										"id": "vaccines-covid-19-names",
+										"hash": "8651c3db9ed5332c8fa42943d4656d442a5264debc8482b6d11d4c9176149146"
+									}
+								]
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valuesets/{hash}": {
+			"get": {
+				"tags": [
+					"Value Sets"
+				],
+				"summary": "Gets a specific value set by its hash value.",
+				"description": "This method can be used to download a specific value set. Therefore the hash value of the value set must be provided as path parameter.",
+				"operationId": "getValueSet",
+				"parameters": [
+					{
+						"name": "hash",
+						"in": "path",
+						"description": "Hash of the value set to download",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "X-VERSION",
+						"in": "header",
+						"description": "Version of the API. In preparation of changes in the future.",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Returns the specified value set.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "string"
+								},
+								"example": {
+									"valueSetId": "disease-agent-targeted",
+									"valueSetDate": "2021-04-27",
+									"valueSetValues": {
+										"840539006": {
+											"display": "COVID-19",
+											"lang": "en",
+											"active": true,
+											"version": "http://snomed.info/sct/900000000000207008/version/20210131",
+											"system": "http://snomed.info/sct"
+										}
+									}
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Value set could not be found for the given hash value.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ProblemReport"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/rules": {
+			"get": {
+				"tags": [
+					"Business Rules"
+				],
+				"summary": "Gets the a list of all business rule ids country codes and hash values.",
+				"description": "This method returns a list containing the ids, country codes and hash values of all business rules. The hash value can be used to check, if a business rule has changed and needs to be updated. The hash value and country code can also be used to download a specific business rule afterwards.",
+				"operationId": "getRules",
+				"parameters": [
+					{
+						"name": "X-VERSION",
+						"in": "header",
+						"description": "Version of the API. In preparation of changes in the future. Set it to \"1.0\"",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Returns a list of all business rule ids country codes and hash values.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/BusinessRuleListItem"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/rules/{country}": {
+			"get": {
+				"tags": [
+					"Business Rules"
+				],
+				"summary": "Gets the a list of all business rule ids country codes and hash values for a country.",
+				"description": "This method returns a list containing the ids, country codes and hash values of all business rules for a country. The hash value can be used to check, if a business rule has changed and needs to be updated. The hash value and country code can also be used to download a specific business rule afterwards.",
+				"operationId": "getRulesForCountry",
+				"parameters": [
+					{
+						"name": "X-VERSION",
+						"in": "header",
+						"description": "Version of the API. In preparation of changes in the future. Set it to \"1.0\"",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "country",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Returns a list of all business rule ids country codes and hash values for a country.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/BusinessRuleListItem"
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "The Country Code has a wrong format.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ProblemReport"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/rules/{country}/{hash}": {
+			"get": {
+				"tags": [
+					"Business Rules"
+				],
+				"summary": "Gets a specific business rule by its country code and hash value.",
+				"description": "This method can be used to download a specific business rule. Therefore the hash value and the country code of the rule must be provided as path parameter.",
+				"operationId": "getRuleByCountryAndHash",
+				"parameters": [
+					{
+						"name": "country",
+						"in": "path",
+						"description": "Country code of the business rule to download.",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "hash",
+						"in": "path",
+						"description": "Hash of the business rule to download.",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "X-VERSION",
+						"in": "header",
+						"description": "Version of the API. In preparation of changes in the future.",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Returns the specified business rule.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "string"
+								},
+								"example": {
+									"Identifier": "VR-DE-1",
+									"Version": "1.0.0",
+									"SchemaVersion": "1.0.0",
+									"Engine": "CERTLOGIC",
+									"EngineVersion": "1.0.0",
+									"Type": "Acceptance",
+									"Country": "DE",
+									"CertificateType": "Vaccination",
+									"Description": [
+										{
+											"lang": "en",
+											"desc": "Vaccination must be from June and doses must be 2"
+										}
+									],
+									"ValidFrom": "2021-06-27T07:46:40Z",
+									"ValidTo": "2021-08-01T07:46:40Z",
+									"AffectedFields": [
+										"dt",
+										"dn"
+									],
+									"Logic": {
+										"and": [
+											{
+												">=": [
+													{
+														"var": "dt"
+													},
+													"2021-06-01T00:00:00Z"
+												]
+											},
+											{
+												">=": [
+													{
+														"var": "dn"
+													},
+													2
+												]
+											}
+										]
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "The Country Code has a wrong format.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ProblemReport"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Business rule could not be found for the given hash and country code value.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ProblemReport"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/publickey": {
+			"get": {
+				"tags": [
+					"Business Rules"
+				],
+				"summary": "Gets the signing public key (der base64 encoded)",
+				"description": "Gets the signing public key (der base64 encoded)",
+				"operationId": "getPublicKey",
+				"responses": {
+					"200": {
+						"description": "public key",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "string"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "signing not supported",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/countrylist": {
+			"get": {
+				"tags": [
+					"Country List Information"
+				],
+				"summary": "Gets the country list.",
+				"description": "This method returns a list containing the country codes of all onboarded member states.",
+				"operationId": "getCountryList",
+				"parameters": [
+					{
+						"name": "X-VERSION",
+						"in": "header",
+						"description": "Version of the API. In preparation of changes in the future. Set it to \"1.0\"",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Returns a JSON list, with all onboarded member states as country code.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								},
+								"example": [
+									"BE",
+									"EL",
+									"LT",
+									"PT",
+									"BG",
+									"ES",
+									"LU",
+									"RO",
+									"CZ",
+									"FR",
+									"HU",
+									"SI",
+									"DK",
+									"HR",
+									"MT",
+									"SK",
+									"DE",
+									"IT",
+									"NL",
+									"FI",
+									"EE",
+									"CY",
+									"AT",
+									"SE",
+									"IE",
+									"LV",
+									"PL"
+								]
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"ValueSetListItem": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"hash": {
+						"type": "string"
+					}
+				},
+				"example": "{\"id\":\"disease-agent-targeted\",\"hash\":\"d4bfba1fd9f2eb29dfb2938220468ccb0b481d348f192e6015d36da4b911a83a\",}"
+			},
+			"ProblemReport": {
+				"type": "object",
+				"properties": {
+					"code": {
+						"type": "string"
+					},
+					"problem": {
+						"type": "string"
+					},
+					"sendValue": {
+						"type": "string"
+					},
+					"details": {
+						"type": "string"
+					}
+				},
+				"example": {
+					"code": "0x001",
+					"problem": "[PROBLEM]",
+					"sent value": "[Sent Value]",
+					"details": "..."
+				}
+			},
+			"BusinessRuleListItem": {
+				"type": "object",
+				"properties": {
+					"identifier": {
+						"type": "string"
+					},
+					"version": {
+						"type": "string"
+					},
+					"country": {
+						"type": "string"
+					},
+					"hash": {
+						"type": "string"
+					}
+				},
+				"example": {
+					"identifier": "VR-DE-1",
+					"version": "1.0.0",
+					"country": "DE",
+					"hash": "6821d518570fe9f4417c482ff0d2582a7b6440f243a9034f812e0d71611b611f"
+				}
+			}
+		}
+	}
+}
