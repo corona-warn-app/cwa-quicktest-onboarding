@@ -11,15 +11,23 @@ const cwaAdapter = new CwaAdapter({
   passphrase: '[Passphrase]'
 })
 
-const exampleTestResultData = {
+const exampleTestData = {
   fn: 'Erika',
   ln: 'Mustermann',
   dob: '1990-12-23',
-  timestamp: 1618386548,
-  result: 6, // 6: negative, 7: positive, 8: invalid
-  sc: 1618389548 // optional result time
+  timestamp: 1618386548
 }
+const exampleResult = 6 // 6: negative, 7: positive, 8: invalid
+const exampleTime = 1618389548 // optional result time
 
-cwaAdapter.sendTestResult(exampleTestResultData)
-  .then(console.log)
+// you should save the hash and testid (if you didn't use your own testid)
+const { hash, url, testid } = cwaAdapter.prepareCwaData(exampleTestData)
+cwaAdapter.sendTestResult({ hash, result: exampleResult, sc: exampleTime })
+  .then((status) => {
+    if (status === 204) {
+      console.info('Test result was successfuly sent.', { ...exampleTestData, hash, url, testid })
+      return
+    }
+    console.warn('Test result failed', status)
+  })
   .catch(console.error)
