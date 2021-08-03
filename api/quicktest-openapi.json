@@ -33,7 +33,7 @@
           "test-result-controller"
         ],
         "summary": "Request the test result for a Rapid Antigen Test by its ID.",
-        "description": "For a given Test ID the result of a RAT can be requested.",
+        "description": "For a given Test ID the result of a RAT can be requested. Please note: you need to hash (sha256) the Test ID ones more and send it to the server in this request.",
         "operationId": "quickTestResult",
         "requestBody": {
           "content": {
@@ -46,7 +46,7 @@
         },
         "responses": {
           "200": {
-            "description": "Ok, RAT result inserted successfully.",
+            "description": "OK. Testresult visible server Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -101,7 +101,7 @@
         "properties": {
           "id": {
             "pattern": "^[XxA-Fa-f0-9]([A-Fa-f0-9]{63})$",
-			"description": "SHA-256 Hash of the identification attribute",
+			"description": "SHA-256 Hash of the identification attribute (double sha256 hashing)",
             "type": "string"
           }
         },
