@@ -16,9 +16,22 @@ $pwd = 'YOUR-PASSWORD';
 /* e.g. ö --> Ö */
 setlocale (LC_ALL, 'de_DE@euro', 'de_DE', 'de', 'ge');
 
-$fn = generateRandomString(7);
-$ln = generateRandomString(6);
+// Some constants
+$validity = 60 * 60 * 24 * 2;
 
+$fn = trim(readline('Enter a first name or press ENTER to use random value: '));
+if (!strlen($fn))
+{
+	$fn = generateRandomString(7);
+	print("Using first name: $fn\n");
+}
+
+$ln = trim(readline('Enter a last name or press ENTER to use random value: '));
+if (!strlen($ln))
+{
+	$ln = generateRandomString(6);
+	print("Using last name: $ln\n");
+}
 $rand_number = mt_rand(631152000,1262055681);
 $dob = date("Y-m-d",$rand_number);
 $testid = uniqid();
@@ -47,6 +60,22 @@ print("\n");print_r($data_json);print("\n");
 $url1 = 'https://s.coronawarn.app?v=1#' . base64url_encode( $data_json );
 print("\n");print_r($url1);print("\n");
 
+// Check if running in Linux and use qrencode if possible
+if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN')
+{
+	exec("command -v qrencode", $out, $ret);
+
+	if ($ret == 0)
+	{
+		exec("qrencode -o qrcode.png $url1");
+		exec("xdg-open qrcode.png >/dev/null 2>/dev/null &");
+	}
+	else
+	{
+		print("qrencode not found. Use URL to create QR code\n");
+	}
+}
+
 $test_results = array(
 	'testResults' => array(
 		array(
@@ -61,6 +90,8 @@ $test_results = json_encode( $test_results );
 
 print("\n");print_r($test_results);print("\n");
 
+print("\n Press ENTER to set test result\n");
+fgets(STDIN);
 
 $url = 'https://quicktest-result-cff4f7147260.coronawarn.app/api/v1/quicktest/results';
 
@@ -151,7 +182,7 @@ include "CBOREncode-master/src/CBOR/Types/CBORByteString.php";
 
 $values = array(
     1 => "DE",
-    4 => ($timestamp + 60 * 60 * 24 * 2),
+    4 => ($timestamp + $validity),
     6 => $timestamp,
     -260 => array(
         1 => array(
@@ -450,7 +481,7 @@ function convertAccentsAndSpecialToICAONormal($string) {
 'Ō'=>'O',
 'Ŏ'=>'O',
 'Ő'=>'O',
-'OE'=>'OE',
+'Œ'=>'OE',
 'Ŕ'=>'R',
 'Ŗ'=>'R',
 'Ř'=>'R',
