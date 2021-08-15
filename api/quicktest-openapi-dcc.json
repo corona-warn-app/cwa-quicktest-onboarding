@@ -148,7 +148,7 @@
           "required": true
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "DCC created",
             "content": {
               "application/json": {
