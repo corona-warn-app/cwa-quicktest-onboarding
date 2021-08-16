@@ -31,10 +31,10 @@ class LabSimulator:
         """ Beantwortet einen DCC-Antrag
             und ruft dazu handle_dgc_request auf"""
         payload = self.handle_dgc_request( testId, dcci, publicKeyStr )
-        response = requests.post(   url=f'{self._config["dcc-endpoint"]}/version/v1/test/{testId}/dcc', 
+        response = requests.post(   url=f'{self._config["dcc-endpoint"]}/version/v1/test/{testId}/dcc',
                                     cert=self._config["dcc-client-cert"],
-                                    json=payload ) 
-        logging.info(f'Upload encrypted data: TestID: {testId} Status Code: {response.status_code}')   
+                                    json=payload )
+        logging.info(f'Upload encrypted data: TestID: {testId} Status Code: {response.status_code}')
 
 
     def handle_dgc_request( self, testId, dcci, publicKeyStr ):
@@ -43,7 +43,7 @@ class LabSimulator:
         # Zufälligen Schlüssel erzeugen
         # (Achtung! Pseudo-Zufallszahlen! Dies ist nur zum Testen)
         dek = random_bytes(32)
-        
+
         # Payload aus testresults-Verzeichnis übernehmen oder zufällige Payload erzeugen
         try:
             with open(f"testresults/{testId}.json",encoding='utf-8') as resultfile:
@@ -51,15 +51,15 @@ class LabSimulator:
             logging.info(f"Loaded test result from file {testId}.json")
         except:
             logging.info("Using random negative test result")
-            dcc_data = self._random_dgc_data() 
+            dcc_data = self._random_dgc_data()
             dcc_data['t'][0]['ci'] = dcci
 
         logging.info(f'DCC-DATA = {dcc_data}')
-        
+
         # Daten CBOR-kodieren
         cbor_data = self.dcc_cbor(dcc_data)
         # Konstante: COSE protected header (für den Hash)
-        protected_header = cbor2.dumps({1:-7})   
+        protected_header = cbor2.dumps({1:-7})
         # CBOR-Daten, die signiert werden: Protected header und Payload
         cbor_to_sign = cbor2.dumps(["Signature1",protected_header, b"", cbor_data] )
         # Es wird AES im CBC Modus mit einem IV von 16 0-Bytes verwendet
@@ -84,7 +84,7 @@ class LabSimulator:
 
 
     def dcc_cbor(self, certData, issuedAtTimestamp=None, expiredAfterSeconds=None ):
-        if issuedAtTimestamp is None: 
+        if issuedAtTimestamp is None:
             issuedAtTimestamp = int(time())     # Wenn nichts angegeben, dann jetziger Zeitpunkt
         if expiredAfterSeconds is None:
             expiredAfterSeconds = 60 * 60 * 24  # Wenn nichts angegeben, 1 Tag Gültigkeit
@@ -137,28 +137,28 @@ class LabSimulator:
         logging.info(f'Endpoint: ' + self._config["dcc-endpoint"] )
         logging.info(f'Lab ID: {self._config["lab-ID"]}')
 
-        while True: 
-            response = requests.get( self._config["dcc-endpoint"]+'/version/v1/publicKey/search/'+self._config["lab-ID"] , 
-                                     cert=self._config["dcc-client-cert"]) 
+        while True:
+            response = requests.get( self._config["dcc-endpoint"]+'/version/v1/publicKey/search/'+self._config["lab-ID"] ,
+                                     cert=self._config["dcc-client-cert"])
             logging.info( f'Polling response status code: {response.status_code} Length: {len(response.text)}')
-            if args.dry_run: 
+            if args.dry_run:
                 logging.warning('Dry run: Will not upload DCC')
                 with open('dry_run.txt','a') as dry_run_file:
                     for dcc_request in response.json():
                         dry_run_file.write("INPUT: " + json.dumps(dcc_request)+"\n")
                         dry_run_file.write("OUTPUT: " + json.dumps(self.handle_dgc_request( dcc_request['testId'], dcc_request['dcci'], dcc_request['publicKey'])) +"\n\n")
                 logging.warning('Exiting')
-                break 
+                break
 
 
             for dcc_request in response.json():
                 logging.info(f'Received DCC request: {dcc_request}')
-                try: 
+                try:
                     self.respond_to_dgc_request( dcc_request['testId'], dcc_request['dcci'], dcc_request['publicKey'])
-                except Exception as e: 
+                except Exception as e:
                     logging.error(e)
             sleep(self._config["polling-period"])
-    
+
 def main(args):
     config = json.load( open(args.config_file, encoding='utf-8' ))
     simulator = LabSimulator(config)
@@ -167,7 +167,7 @@ def main(args):
 
 
 if __name__ == '__main__':
-    try: 
+    try:
         import coloredlogs
         coloredlogs.install()
     except:
