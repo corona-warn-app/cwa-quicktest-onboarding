@@ -123,9 +123,9 @@ class LabSimulator:
         gn = ''.join(random.choices(string.ascii_lowercase, k=random.randint(5,15))).capitalize()
 
         data['nam']['fn'] = fn
-        data['nam']['fnt'] = fn.upper()
+        data['nam']['fnt'] = self._convertToICAONormal(fn)
         data['nam']['gn'] = gn
-        data['nam']['gnt'] = gn.upper()
+        data['nam']['gnt'] = self._convertToICAONormal(gn)
         data['dob'] = str(random.randint(1930,2000))+"-0"+str(random.randint(1,9))+"-"+str(random.randint(10,28))
         data['t'][0]['sc'] = datetime.fromtimestamp(datetime.utcnow().timestamp()-600).isoformat(timespec='seconds')+'Z'
         if 'dr' in data['t'][0]: # Abwärtskompatibilität mit Schema Version 1.0.0
@@ -133,6 +133,142 @@ class LabSimulator:
 
         return data
 
+    def _convertToICAONormal(self,string):
+        string=string.upper()
+        transl = {
+            '1':'I',
+            '2':'II',
+            '3':'III',
+            '4':'IV',
+            '5':'V',
+            '6':'VI',
+            '7':'VII',
+            '8':'VIII',
+            '9':'IX',
+            ' ':'<',
+            '-':'<',
+            '\'':'',
+            ',':'',
+            ':':'',
+            ';':'',
+            '.':'',
+            'À':'A',
+            'Á':'A',
+            'Â':'A',
+            'Ã':'A',
+            'Ä':'AE',
+            'Å':'AA',
+            'Æ':'AE',
+            'Ç':'C',
+            'È':'E',
+            'É':'E',
+            'Ê':'E',
+            'Ë':'E',
+            'Ì':'I',
+            'Í':'I',
+            'Î':'I',
+            'Ï':'I',
+            'Ð':'D',
+            'Ñ':'N',
+            'Ò':'O',
+            'Ó':'O',
+            'Ô':'O',
+            'Õ':'O',
+            'Ö':'OE',
+            'Ø':'OE',
+            'Ù':'U',
+            'Ú':'U',
+            'Û':'U',
+            'Ü':'UE',
+            'Ý':'Y',
+            'Þ':'TH',
+            'Ā':'A',
+            'Ă':'A',
+            'Ą':'A',
+            'Ć':'C',
+            'Ĉ':'C',
+            'Ċ':'C',
+            'Č':'C',
+            'Ď':'D',
+            'Ð':'D',
+            'Ē':'E',
+            'Ĕ':'E',
+            'Ė':'E',
+            'Ę':'E',
+            'Ě':'E',
+            'Ĝ':'G',
+            'Ğ':'G',
+            'Ġ':'G',
+            'Ģ':'G',
+            'Ĥ':'H',
+            'Ħ':'H',
+            'Ĩ':'I',
+            'Ī':'I',
+            'Ĭ':'I',
+            'Į':'I',
+            'İ':'I',
+            'I':'I',
+            'Ĳ':'IJ',
+            'Ĵ':'J',
+            'Ķ':'K',
+            'Ĺ':'L',
+            'Ļ':'L',
+            'Ľ':'L',
+            'Ŀ':'L',
+            'Ł':'L',
+            'Ń':'N',
+            'Ņ':'N',
+            'Ň':'N',
+            'Ŋ':'N',
+            'Ō':'O',
+            'Ŏ':'O',
+            'Ő':'O',
+            'Œ':'OE',
+            'Ŕ':'R',
+            'Ŗ':'R',
+            'Ř':'R',
+            'Ś':'S',
+            'Ŝ':'S',
+            'Ş':'S',
+            'Š':'S',
+            'Ţ':'T',
+            'Ť':'T',
+            'Ŧ':'T',
+            'Ũ':'U',
+            'Ū':'U',
+            'Ŭ':'U',
+            'Ů':'U',
+            'Ű':'U',
+            'Ų':'U',
+            'Ŵ':'W',
+            'Ŷ':'Y',
+            'Ÿ':'Y',
+            'Ź':'Z',
+            'Ż':'Z',
+            'Ž':'Z',
+            'ẞ':'SS',
+            'Ё':'E',
+            'Ћ':'D',
+            'Є':'IE',
+            'Ѕ':'DZ',
+            'І':'I ',
+            'Ї':'I',
+            'Ј':'J',
+            'Љ':'LJ',
+            'Њ':'NJ',
+            'Ќ':'K',
+            'ў':'U',
+            'Џ':'DZ',
+        }
+
+        for s in string:
+            if s in transl:
+                string=string.replace(s,transl[s])
+            else:
+                logging.warning(f'Name contains non latin character {s}. Handle such input with error in production')
+        return string
+        
+        
     def run(self):
         logging.info(f'Endpoint: ' + self._config["dcc-endpoint"] )
         logging.info(f'Lab ID: {self._config["lab-ID"]}')
