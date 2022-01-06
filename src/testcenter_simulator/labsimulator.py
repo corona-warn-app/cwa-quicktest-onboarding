@@ -1,7 +1,7 @@
 from time import sleep
 import logging
 from argparse import ArgumentParser
-from os import urandom as random_bytes # This is test, we don't need strong crypto
+from os import urandom as random_bytes
 import random
 import string
 from cryptography.hazmat.primitives.serialization import load_pem_public_key
@@ -19,7 +19,9 @@ from datetime import datetime
 from time import time, sleep
 
 
-
+class LatinCharError(Exception):
+    """Raised when the input value is not a Latin Character"""
+    pass
 
 
 class LabSimulator:
@@ -41,7 +43,6 @@ class LabSimulator:
         "Erstellt eine Antwort auf einen DCC-Antrag"
 
         # Zufälligen Schlüssel erzeugen
-        # (Achtung! Pseudo-Zufallszahlen! Dies ist nur zum Testen)
         dek = random_bytes(32)
 
         # Payload aus testresults-Verzeichnis übernehmen oder zufällige Payload erzeugen
@@ -52,7 +53,7 @@ class LabSimulator:
         except:
             logging.info("Using random negative test result")
             dcc_data = self._random_dgc_data()
-            dcc_data['t'][0]['ci'] = dcci
+
 
         logging.info(f'DCC-DATA = {dcc_data}')
 
@@ -263,9 +264,13 @@ class LabSimulator:
 
         for s in string:
             if s in transl:
-                string=string.replace(s,transl[s])
+                string=string.replace(s,transl[s])              
             else:
-                logging.warning(f'Name contains non latin character {s}. Handle such input with error in production')
+                if s.isascii():
+                    logging.debug(f'No conversion needed for character {s}')  
+                else:
+                    logging.error(f'Name contains non-latin character {s}.')
+                    raise LatinCharError
         return string
         
         
