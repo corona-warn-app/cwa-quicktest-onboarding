@@ -122,10 +122,11 @@ fgets(STDIN);
 
 // Start DCC Part here
 print("\n Processing DCC\n");
+$jsonArrayResponse  = searchTest($labid, $hash, $certfile, $keyfile, $pwd);
 
-//print("\n result");print_r($result);print("\n");
-$jsonArrayResponse = searchTest($labid, $hash, $certfile, $keyfile, $pwd);
-//print("\n Array");print_r($jsonArrayResponse);print("\n");
+$dcci = $jsonArrayResponse["dcci"];
+$publicKey = $jsonArrayResponse["publicKey"];
+$testId = $jsonArrayResponse["testId"]; 
 
 
 // assemble HCERT JSON as base for encryptedDcc 
@@ -599,9 +600,9 @@ $expTestId = hash("sha256",$hash);
 
 echo 'search for testId: ' . $expTestId . PHP_EOL; 
 
-$dcci = "";
-$publicKey = "";
-$testId = ""; 
+$result['dcci'] = "";
+$result['publicKey'] = "";
+$result['testId'] = ""; 
 
 // fetch public key and dcci from response
 foreach ($jsonArrayResponse as $element)
@@ -610,9 +611,9 @@ foreach ($jsonArrayResponse as $element)
 	if ($expTestId == $element["testId"])
 	{
 		echo 'dcci:' . $element["dcci"] . ' - publicKey:' . $element["publicKey"] . ' - testId:' . $element["testId"] . PHP_EOL;
-		$dcci = $element["dcci"];
-		$publicKey = $element["publicKey"];
-		$testId = $element["testId"]; 
+		$result['dcci'] = $element["dcci"];
+		$result['publicKey'] = $element["publicKey"];
+		$result['testId'] = $element["testId"]; 
 		$hasResult = true;
 	}
 	//get the matching testId 
@@ -621,9 +622,10 @@ foreach ($jsonArrayResponse as $element)
 $result = trim(curl_exec($ch));
 	
 if($hasResult){
-	return $jsonArrayResponse = json_decode($result, true);
+	return $result;
 }
 	
+
 return searchTests($labId,$hash, $certfile, $keyfile, $pwd, 60);
 }
 
