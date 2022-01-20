@@ -88,7 +88,7 @@ class LabSimulator:
         if issuedAtTimestamp is None:
             issuedAtTimestamp = int(time())     # Wenn nichts angegeben, dann jetziger Zeitpunkt
         if expiredAfterSeconds is None:
-            expiredAfterSeconds = 60 * 60 * 24  # Wenn nichts angegeben, 1 Tag Gültigkeit
+            expiredAfterSeconds = 60 * 60 * 24 * 2  # Wenn nichts angegeben, 2 Tage Gültigkeit
 
         cborMap = {}
         cborMap[4] = issuedAtTimestamp + expiredAfterSeconds
