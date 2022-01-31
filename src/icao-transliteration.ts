@@ -5,6 +5,7 @@
 // noinspection NonAsciiCharacters
 const transliterationMapping: Record<number, string|string[]> = {
   0x0020: '<',
+  0x002C: '<',
   0x002D: '<',
   0x00C0: 'A',
   0x00C1: 'A',
@@ -183,6 +184,33 @@ const transliterationMapping: Record<number, string|string[]> = {
   0x06D3: 'XBE',
 };
 
+function convertToRoman(n: number): string {
+  const romanMapping = {
+    M: 1000,
+    CM: 900,
+    D: 500,
+    CD: 400,
+    C: 100,
+    XC: 90,
+    L: 50,
+    XL: 40,
+    X: 10,
+    IX: 9,
+    V: 5,
+    IV: 4,
+    I: 1,
+  };
+  let str = '';
+
+  for (const romanLetter of Object.keys(romanMapping)) {
+    const q = Math.floor(n / romanMapping[romanLetter]);
+    n -= q * romanMapping[romanLetter];
+    str += romanLetter.repeat(q);
+  }
+
+  return str;
+}
+
 /**
  * Transliterates a string to machine-readable zone using ICAO 9393 P3 Transliteration Mapping
  * hint: This does not respect different variants for serbian/bulgarian/ukrainian etc. - it always uses the first recommended transliteration
@@ -193,8 +221,10 @@ function transliterateMRZ(input: string): string {
   const inputUppercase = input
     .trim() // trim start and end
     .toUpperCase() // uppercase normalization
-    .replace(/([\u0020|\u002D])+/g, (match) => {
-      return match[0]; // de-duplicate spaces and dashes
+    .replace(/[^\u0020-\u0233\u1E02-\u1EF9]/, '')
+    .replace(/(\d+)/, (numberString: string) => {
+      const number = parseInt(numberString, 10);
+      return convertToRoman(number);
     });
   for (let i = 0; i < inputUppercase.length; i++) {
     let charCode = inputUppercase.charCodeAt(i);
@@ -225,5 +255,8 @@ function transliterateMRZ(input: string): string {
       }
     }
   }
-  return mappedOutputCharacters.join('');
+
+  return mappedOutputCharacters.join('').replace(/<+/g, (match) => {
+    return match[0]; // de-duplicate '<'
+  });
 }
