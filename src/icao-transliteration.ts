@@ -179,7 +179,7 @@ const transliterationMapping: Record<number, string|string[]> = {
   0x06CC: 'XYA',
   0x06CD: 'XXY',
   0x06D0: 'Y',
-  0x06D2: 'XYB',MRZ
+  0x06D2: 'XYB',
   0x06D3: 'XBE',
 };
 
