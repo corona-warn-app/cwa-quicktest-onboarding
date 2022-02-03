@@ -17,7 +17,7 @@ from base64 import b64encode
 from binascii import hexlify
 from datetime import datetime
 from time import time, sleep
-
+import secrets
 
 class LatinCharError(Exception):
     """Raised when the input value is not a Latin Character"""
@@ -43,7 +43,7 @@ class LabSimulator:
         "Erstellt eine Antwort auf einen DCC-Antrag"
 
         # Zufälligen Schlüssel erzeugen
-        dek = random_bytes(32)
+        dek = secrets.token_bytes(32)
 
         # Payload aus testresults-Verzeichnis übernehmen oder zufällige Payload erzeugen
         try:
