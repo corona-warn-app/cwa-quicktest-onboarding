@@ -122,56 +122,12 @@ fgets(STDIN);
 
 // Start DCC Part here
 print("\n Processing DCC\n");
+$jsonArrayResponse  = searchTest($labid, $hash, $certfile, $keyfile, $pwd);
 
-// get Public Key -- polling 
-$url = 'https://dcc-proxy-cff4f7147260.coronawarn.app/version/v1/publicKey/search/' . $labid;
+$dcci = $jsonArrayResponse["dcci"];
+$publicKey = $jsonArrayResponse["publicKey"];
+$testId = $jsonArrayResponse["testId"]; 
 
-print("\n");print_r($labid);print("\n");
-
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $url);
-curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
-curl_setopt($ch, CURLOPT_SSLCERT, $certfile);
-curl_setopt($ch, CURLOPT_SSLKEY, $keyfile);
-curl_setopt($ch, CURLOPT_SSLKEYPASSWD, $pwd);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_VERBOSE, 1); 
-
-$result = trim(curl_exec($ch));
-
-//print("\n result");print_r($result);print("\n");
-$jsonArrayResponse = json_decode($result, true);
-//print("\n Array");print_r($jsonArrayResponse);print("\n");
-
-$error = curl_error($ch);
-print("\n Error: ");print_r($error);print("\n");
-
-
-// POST
-
-// calculate the expected testId as hash from hash 
-$expTestId = hash("sha256",$hash);
-
-echo 'search for testId: ' . $expTestId . PHP_EOL; 
-
-$dcci = "";
-$publicKey = "";
-$testId = ""; 
-
-// fetch public key and dcci from response
-foreach ($jsonArrayResponse as $element)
-{
-	
-	if ($expTestId == $element["testId"])
-	{
-		echo 'dcci:' . $element["dcci"] . ' - publicKey:' . $element["publicKey"] . ' - testId:' . $element["testId"] . PHP_EOL;
-		$dcci = $element["dcci"];
-		$publicKey = $element["publicKey"];
-		$testId = $element["testId"]; 
-		
-	}
-	//get the matching testId 
-}
 
 // assemble HCERT JSON as base for encryptedDcc 
 
@@ -182,8 +138,8 @@ include "CBOREncode-master/src/CBOR/Types/CBORByteString.php";
 
 $values = array(
     1 => "DE",
-    4 => ($timestamp + $validity),
-    6 => $timestamp,
+    4 => ((int)($timestamp + $validity)),	// Important convert timestamp to int, this is for sample collection time
+    6 => ((int)time()), 			// Important convert timestamp to int, this is for DCC request Time
     -260 => array(
         1 => array(
             "t" => array(
@@ -193,7 +149,7 @@ $values = array(
                     "is" => "Robert Koch-Institut",
                     "tg" => "840539006",
                     "tt" => "LP217198-3",
-                    "sc" => (string)date("c", $timestamp),
+                    "sc" => (string)date("Y-m-d\TH:i:s\Z", $timestamp), // Important you need Zulu Timestamp
                     "tr" => "260415000",
                     "tc" => "MDF Testzentrum (1234)",
                     "ma" => "2098"
@@ -316,6 +272,8 @@ $dcc_json = json_encode( $dcc_json );
 
 print("\n");print_r($dcc_json);print("\n");
 
+// Before you can retrieve the DCC, the test must have been imported into the system and scanned by a smartphone,
+// only then will the test appear in the search and also only then can a DCC be requested.
 
 $url = 'https://dcc-proxy-cff4f7147260.coronawarn.app/version/v1/test/'. $testId . '/dcc';
 
@@ -612,5 +570,62 @@ function convertAccentsAndSpecialToICAONormal($string) {
     $string = preg_replace("/[^\x9\xA\xD\x20-\x7F]/u", "", $string);
 
     return $string;
+}
+
+function searchTest($labId,$hash, $certfile, $keyfile, $pwd ,$timeout=0){
+	
+//wait for Timeout
+sleep($timeout);
+	
+// get Public Key -- polling 
+// Test will apear in search after it is scanned, this can take up to 5min
+$url = 'https://dcc-proxy-cff4f7147260.coronawarn.app/version/v1/publicKey/search/' . $labid;
+
+print("\n");print_r($labid);print("\n");
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
+curl_setopt($ch, CURLOPT_SSLCERT, $certfile);
+curl_setopt($ch, CURLOPT_SSLKEY, $keyfile);
+curl_setopt($ch, CURLOPT_SSLKEYPASSWD, $pwd);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_VERBOSE, 1); 
+	
+$error = curl_error($ch);
+print("\n Error: ");print_r($error);print("\n");
+
+// calculate the expected testId as hash from hash 
+$expTestId = hash("sha256",$hash);
+
+echo 'search for testId: ' . $expTestId . PHP_EOL; 
+
+$result['dcci'] = "";
+$result['publicKey'] = "";
+$result['testId'] = ""; 
+
+// fetch public key and dcci from response
+foreach ($jsonArrayResponse as $element)
+{
+	
+	if ($expTestId == $element["testId"])
+	{
+		echo 'dcci:' . $element["dcci"] . ' - publicKey:' . $element["publicKey"] . ' - testId:' . $element["testId"] . PHP_EOL;
+		$result['dcci'] = $element["dcci"];
+		$result['publicKey'] = $element["publicKey"];
+		$result['testId'] = $element["testId"]; 
+		$hasResult = true;
+	}
+	//get the matching testId 
+}
+
+$result = trim(curl_exec($ch));
+	
+if($hasResult){
+	return $result;
+}
+	
+
+return searchTests($labId,$hash, $certfile, $keyfile, $pwd, 60);
 }
 
